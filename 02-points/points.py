@@ -4,14 +4,14 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Cargar archivo
+# Cargar trayectorias
 random = pd.read_csv('random.csv')
 sine = pd.read_csv('sine.csv')
-# Mostrar puntos
-# 'o' indica que se debe pintar los puntos
+# Mostrar trayectorias
+# 'o' indica que se deben colocar puntos en forma redonda
 # '-' indica que se debe hacer una línea sólida entre los puntos
-# 'b' indica que la línea debe ser de color azul
-# 'r' indica que la línea debe ser de color rojo
+# 'b' indica que la línea debe ser de color azul (blue)
+# 'r' indica que la línea debe ser de color rojo (red)
 plt.plot(random['x'], random['y'], 'bo-', label='Mov. aleatorio')
 plt.plot(sine['x'], sine['y'], 'ro-', label='Mov. sinusoidal')
 plt.legend()

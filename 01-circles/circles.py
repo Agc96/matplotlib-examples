@@ -15,11 +15,12 @@ ax.add_patch(circle1)
 ax.add_patch(circle2)
 ax.add_patch(circle3)
 ax.legend()
-# Configurar el lienzo
+# Configurar el plano cartesiano
 ax.spines['top'].set_color('none')
 ax.spines['bottom'].set_position('zero')
 ax.spines['left'].set_position('zero')
 ax.spines['right'].set_color('none')
+# Configurar el lienzo
 plt.grid()
 plt.axis('scaled')
 plt.xlabel('Intersección de 3 círculos')
