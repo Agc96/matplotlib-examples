@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Mostrar la trayectoria de un objeto usando matplotlib."""
+"""
+Mostrar la trayectoria de un objeto, definida desde un archivo CSV, usando matplotlib.
+"""
 
 import pandas as pd
 import matplotlib.pyplot as plt
