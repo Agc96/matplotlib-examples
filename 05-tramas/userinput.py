@@ -38,9 +38,11 @@ def generate_points():
     while True:
         result = input('Ingrese un punto: ')
         try:
-            x, y = result.split(',') # Separar las coordenadas
+            # Separar las coordenadas
+            x, y = result.split(',')
+            # Convertir las coordenadas a punto flotante
             x = float(x)
-            y = float(y) # Convertir las coordenadas a punto flotante
+            y = float(y)
             if x == -1 and y == -1:
                 break
             else:
@@ -63,8 +65,10 @@ def ask_for_points():
     result = input('¿Desea generar nuevos puntos? (S/N): ')
     while True:
         if result.upper() == 'S':
-            clear_arrays() # Limpiar todas las variables que sean arreglos
-            return generate_points() # Volver a generar los puntos
+            # Limpiar todas las variables que sean arreglos
+            clear_arrays()
+            # Volver a generar los puntos
+            return generate_points()
         elif result.upper() == 'N':
             return axes, points
         else:
