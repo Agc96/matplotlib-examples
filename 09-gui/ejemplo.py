@@ -10,21 +10,18 @@ from tkinter.messagebox import showerror
 
 import numpy as np
 
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.animation import FuncAnimation
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-import matplotlib.pyplot as plt
-
-from scipy.constants import g as GRAVEDAD
 
 # Inicializar la ventana
 ventana = tk.Tk()
-ventana.title("Ejemplo de movimiento telúrico")
+ventana.title("Ejemplo")
 ventana.geometry("800x600")
 
 # Inicializar el frame de ingreso de datos
 frame = tk.Frame(ventana)
-frame.pack(side=tk.LEFT)
+frame.grid(row=0, column=0)
 
 # Función auxiliar para generar datos de entrada
 def generar_dato_entrada(frame, titulo, fila):
@@ -85,10 +82,14 @@ fig = Figure(figsize=(2, 2))
 fig.gca().grid(True)
 canvas = FigureCanvasTkAgg(fig, master=ventana)
 canvas.draw()
-canvas.get_tk_widget().pack(side=tk.RIGHT, fill=tk.X, expand=1)
+canvas.get_tk_widget().grid(row=0, column=1)
 
 # Generar gráficos auxiliares
+fig_2 = Figure(figsize=(2,2))
+fig.gca().grid(True)
+canvas = FigureCanvasTkAgg(fig_2, master=ventana)
+canvas.draw()
+canvas.get_tk_widget().grid(row=1, column=0)
 
 # Interactuar con la ventana
 tk.mainloop()
-
