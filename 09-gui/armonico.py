@@ -8,9 +8,9 @@ Created on Fri Oct 25 18:42:03 2019
 import numpy as np
 import matplotlib.pyplot as plt
 
-amplitud = 10
+amplitud = 5
 tiempo = 20
-periodo = 2
+periodo = 1
 
 def calcular_amplitud(frame):
     if frame <= (tiempo / 2):
@@ -27,5 +27,5 @@ for frame in frames:
     valores.append(calcular_armonico(frame))
 
 plt.figure()
-plt.plot(frames, valores, '-o')
+plt.plot(frames, valores, '-b')
 plt.show()

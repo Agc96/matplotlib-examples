@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Simula el movimiento de un edificio (rectángulo) con un movimiento sinusoidal.
+Ejemplo básico de animación de puntos con Matplotlib.
 """
 
 import numpy as np
@@ -16,22 +16,20 @@ try:
 except ImportError:
     get_ipython().magic('matplotlib qt')
 
-rectangle = plt.Rectangle((1, 0), 1, 5)
 fig, ax = plt.subplots()
-ax.add_patch(rectangle)
+xdata, ydata = [], []
+ln, = plt.plot([], [], 'ro')
 
 def init():
-    ax.set_xlim(0, 3)
-    ax.set_ylim(0, 6)
-    return rectangle,
+    ax.set_xlim(0, 2*np.pi)
+    ax.set_ylim(-1, 1)
+    return ln,
 
 def update(frame):
-    position = 0.05*(np.sin(frame - np.pi/2) + 1)
-    print("{0:10.4f} {1:10.4f}".format(frame, position))
-    rectangle.set_y(position)
-    return rectangle,
+    xdata.append(frame)
+    ydata.append(np.sin(frame))
+    ln.set_data(xdata, ydata)
+    return ln,
 
-# Generar la animación
-print("Frame      Position")
-ani = FuncAnimation(fig, update, frames=np.linspace(0, 200, 501),
+ani = FuncAnimation(fig, update, frames=np.linspace(0, 2*np.pi, 128),
                     init_func=init, blit=True)
