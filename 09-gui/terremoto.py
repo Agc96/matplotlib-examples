@@ -8,9 +8,10 @@ a un terremoto.
 import numpy as np
 import tkinter as tk
 from matplotlib.animation import FuncAnimation
-from matplotlib.patches import Rectangle
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+from matplotlib.patches import Rectangle
+from matplotlib.transforms import Affine2D
 from scipy.constants import g as gravedad
 from tkinter.messagebox import showerror
 
@@ -111,12 +112,12 @@ def calcular_angulo(tiempo, angulo, velang):
     Calcula el ángulo que tendrá el edificio sometido a un movimiento armónico
     amortiguado.
     """
-    global amplitud, amort, periodo, radio, paso
+    global amplitud, amort, periodo, radio, paso, alfa
     # Calcular los datos intermedios
     frec = np.sqrt((3*gravedad) / (4*radio))
     frecdelta = frec * paso
-    senh = np.sinh(frec * paso)
-    cosh = np.cosh(frec * paso)
+    senh = np.sinh(frecdelta)
+    cosh = np.cosh(frecdelta)
     acel_ahora = calcular_aceleracion(tiempo)
     acel_despues = calcular_aceleracion(tiempo + paso)
     # Aplicar la fórmula
@@ -124,7 +125,7 @@ def calcular_angulo(tiempo, angulo, velang):
     parte2 = cosh * angulo
     parte3 = ((1 - senh/frecdelta) / gravedad) * acel_despues
     parte4 = ((senh/frecdelta - cosh) / gravedad) * acel_ahora
-    parte5 = 0
+    parte5 = alfa * (1 - cosh) * np.sign(angulo)
     return parte1 + parte2 + parte3 + parte4 + parte5
 
 def calcular_velang(tiempo, angulo, velang):
@@ -132,20 +133,20 @@ def calcular_velang(tiempo, angulo, velang):
     Calcula la primera derivada del ángulo (velocidad angular) que tendrá el
     edificio sometido a un movimiento armónico amortiguado.
     """
-    global amplitud, amort, periodo, radio, paso
+    global amplitud, amort, periodo, radio, paso, alfa
     # Calcular los datos intermedios
     frec = np.sqrt((3*gravedad) / (4*radio))
     frecdelta = frec * paso
-    senh = np.sinh(frec * paso)
-    cosh = np.cosh(frec * paso)
+    senh = np.sinh(frecdelta)
+    cosh = np.cosh(frecdelta)
     acel_ahora = calcular_aceleracion(tiempo)
     acel_despues = calcular_aceleracion(tiempo + paso)
     # Aplicar la fórmula
-    parte1 = 0 * velang
-    parte2 = 0 * angulo
-    parte3 = 0 * acel_despues
-    parte4 = 0 * acel_ahora
-    parte5 = 0
+    parte1 = cosh * velang
+    parte2 = frec * senh * angulo
+    parte3 = ((1 - cosh) / (gravedad * paso)) * acel_despues
+    parte4 = ((cosh - frecdelta*senh - 1) / (gravedad * paso)) * acel_ahora
+    parte5 = -alfa * frec * senh * np.sign(angulo)
     return parte1 + parte2 + parte3 + parte4 + parte5
 
 def start():
@@ -153,8 +154,8 @@ def start():
     Calcula los datos para la simulación del movimiento sísmico e inicia una
     animación para observar el movimiento del edificio.
     """
-    global base, altura, masa, radio, amplitud, amort, periodo
-    global tiempos, posiciones, angulos, anim, paso
+    global base, altura, masa, radio, amplitud, amort, periodo, alfa
+    global tiempos, posiciones, angulos, cocientes, anim, paso
     try:
         # Parar la animación anterior, si es que existe
         if anim:
@@ -178,6 +179,7 @@ def start():
         tiempos, paso = np.linspace(0, 20, 1001, retstep=True)
         posiciones = []
         angulos = []
+        cocientes = []
         for tiempo in tiempos:
             tiempo_real = 10 - tiempo if tiempo <= 10 else tiempo - 10
             # Calcular nuevo desplazamiento
@@ -186,11 +188,11 @@ def start():
             # Calcular nueva diferencia entre ángulos
             angulo, velang = (calcular_angulo(tiempo_real, angulo, velang),
                               calcular_velang(tiempo_real, angulo, velang))
-            print(angulo, velang)
-            angulos.append(0 / alfa)
+            angulos.append(angulo)
+            cocientes.append(angulo / alfa)
         # Actualizar valores en los gráficos
         desplazamiento_ln.set_data(tiempos, posiciones)
-        angulos_ln.set_data(tiempos, angulos)
+        angulos_ln.set_data(tiempos, cocientes)
         canvas.draw()
         # Iniciar la animación
         anim = FuncAnimation(fig, update, 1000, interval=20, blit=True)
@@ -204,16 +206,22 @@ def update(index):
     Controla la posición y ángulo del edificio en la simulación del movimiento
     sísmico.
     """
-    global tiempos, posiciones, angulos
+    global tiempos, posiciones, angulos, cocientes
     # Obtener los datos
     tiempo = tiempos[index]
     posicion = posiciones[index]
     angulo = angulos[index]
+    cociente = cocientes[index]
     # Actualizar valores en el edificio
     edificio.set_x(posicion - base)
-    # TODO: Mover ángulo
+    # Actualizar ángulo del edificio
+    trans_original = edificio_ax.transData
+    punto_rotacion = (-base, 0) if angulo >= 0 else (base, 0)
+    coords = trans_original.transform(punto_rotacion)
+    trans_rotar = Affine2D().rotate_around(coords[0], coords[1], angulo)
+    edificio.set_transform(trans_original + trans_rotar)
     # Actualizar puntos en las líneas
-    angulos_mov.set_data(tiempo, angulo)
+    angulos_mov.set_data(tiempo, cociente)
     desplazamiento_mov.set_data(tiempo, posicion)
     return edificio, desplazamiento_mov, angulos_mov
 
@@ -223,9 +231,6 @@ button.grid(row=7, columnspan=2, padx=5, pady=5)
 
 # Inicializar los valores
 anim = None
-tiempos = []
-posiciones = []
-angulos = []
 start()
 # Interactuar con la ventana
 window.mainloop()
