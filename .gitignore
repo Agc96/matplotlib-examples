@@ -102,3 +102,7 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Windows files
+Thumbs.db
+desktop.ini
